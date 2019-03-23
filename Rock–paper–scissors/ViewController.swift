@@ -40,6 +40,9 @@ class ViewController: UIViewController,UITextFieldDelegate {
     var playwon = 0
     var comwon = 0
     var even = 0
+    //Index 1 = Rock, Index 2 = Paper, Index 3 = Scissor
+    var UserSelection:Array<Double> = [0,0,0]
+    var predict = 0
     
     @IBOutlet weak var Player: UIImageView!
     @IBOutlet weak var Compare: UIImageView!
@@ -59,28 +62,47 @@ class ViewController: UIViewController,UITextFieldDelegate {
     @IBAction func Rock(_ sender: UIButton) {
         userSelection = Collection.Rock.rawValue
         Player.image = UIImage(named: "Rock.png")
-        Play()
+        UserSelection[0] = UserSelection[0]+1
+        predict = softmax(UserSelection)
+        Play(predict: predict)
     }
     
     @IBAction func Paper(_ sender: Any) {
         userSelection = Collection.Paper.rawValue
          Player.image = UIImage(named: "Paper.png")
-        Play()
+        UserSelection[1] = UserSelection[1]+1
+        predict = softmax(UserSelection)
+        Play(predict: predict)
     }
     
     @IBAction func Scissor(_ sender: Any) {
         userSelection = Collection.Scissor.rawValue
          Player.image = UIImage(named: "Scissors.png")
-        Play()
+        UserSelection[2] = UserSelection[2]+1
+        predict = softmax(UserSelection)
+        Play(predict: predict)
     }
     
-    func Play() -> Void {
-        comSelection = ViewController.randomComSelection()
-        if (comSelection == "Rock"){
-            Computer.image = Collection.Rock.image}
-        else if (comSelection == "Paper"){
-            Computer.image = Collection.Paper.image}
-        else {Computer.image = Collection.Scissor.image}
+    func Play(predict:Int) -> Void {
+        //comSelection = ViewController.randomComSelection()
+        switch (predict) {
+        case 0:
+            comSelection = "Paper"
+            Computer.image = Collection.Paper.image
+            break;
+        case 1:
+            comSelection = "Scissor"
+            Computer.image = Collection.Scissor.image
+            break;
+        case 2:
+            comSelection = "Rock"
+            Computer.image = Collection.Rock.image
+            
+            break;
+        default:
+            break;
+        }
+      
         
         if (userSelection == "Rock" && comSelection == "Scissor")
         {
@@ -147,5 +169,19 @@ class ViewController: UIViewController,UITextFieldDelegate {
         }
     }
     
+    //Calculate the percentage of next user's selection
+    func softmax(_ numbers:Array<Double>) -> Int{
+        var exp_sum:Double = 0
+        for number in numbers {
+            exp_sum += exp(number)
+            print(exp_sum)
+        }
+        var result:Array<Double> = []
+        for number in numbers {
+            result.append(exp(number) / exp_sum)
+        }
+        let maxPosition = result.firstIndex(of: result.max()!)
+        return maxPosition!
+    }
 }
 
